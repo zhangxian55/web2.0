@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>印象仙剑</title>
+	<style type="text/css">
+		*{
+			margin: 0;
+			padding: 0;
+			background:#FDFDFD;
+		}
+		.bigbg{
+			width: 100%;
+			height: 488px;
+			position: relative;
+			background: url(images/bbg.jpg) no-repeat scroll center bottom transparent;
+			z-index: 99;
+		}
+		.boss{
+                   background: url("images/bg3.jpg") no-repeat scroll center bottom transparent;
+                   bottom: 0;
+                   height: 503px;
+                   left: 50%;
+                   margin-left: -832px;
+                   position: fixed;
+                   width: 1680px;
+              }
+		.waterfall{
+			margin-top: 20px;
+			width: 1100px;
+			margin: 0 auto;
+			font-size: 12px;
+			position: relative;
+			z-index: 1;
+			text-align: center;
+			font-size: 14px;
+			 
+		}
+
+		.grid{
+			background-color: #ccc;
+			width: 230px;
+			margin-left: 20px;
+		}
+		.mask{
+			position: fixed;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0,0,0,.5);
+			display: none;
+			z-index: 100;
+		}
+		.bigpic{
+			width: 1200px;
+			background-color: rgba(0,0,0,.5);
+			height: 600px;
+			overflow: hidden;
+			margin: 20px 50px;
+			position: relative;
+		}
+
+		.mask span{
+			position: absolute;
+			right: 100px;
+			top: 20px;
+			border-radius: 50%;
+			width: 30px;
+			height: 30px;
+			background-color: orange;
+			font-size: 24px;
+			line-height: 30px;
+			text-align: center;
+			font-weight: bold;
+		}
+
+
+	</style>
+</head>
+<body>
+	<div class="mask">
+		<div class="bigpic">
+			<span>×</span>
+			<img id="datutu" src="" alt="" />
+		</div>
+	</div>
+	<div class="boss">  </div>
+	<div class="bigbg">
+		
+	</div>
+	
+	<div class="waterfall">
+
+	</div>
+ 
+	
+
+	<script type="text/template" id="template">
+		<div class="grid">
+			<p class="pic">
+				<img src="<%=tutu%>" alt="" />
+			</p>
+			<p class="title">
+				<%=subject%>
+			</p>
+			<p class="like">
+				喜欢(<%=like%>)
+			</p>
+			<p class="talk">
+				评论(<%=comment%>)
+			</p>
+		</div>
+	</script>
+
+	<script type="text/javascript" src="js/jquery-1.12.3.min.js"></script>
+	<script type="text/javascript" src="js/underscore.js"></script>
+	<script type="text/javascript">
+		var page = 1
+		var templateStr = $("#template").html();
+		var compild = _.template(templateStr);
+
+		var colheight = [0,0,0,0];
+
+		function getJSON(page){
+			//JSONP请求
+			$.ajax("http://yx.xianjian.com/p/api.php?method=wf&api_key=nimakdkeiLdkfen2lidkdlDLLEKd&page=" + page + "&per_page=10&tag=&type=5&order=2&_ksTS=1474538139236_164&jsoncallback=haha",{
+				"dataType" : "jsonp",
+				"jsonpCallback" : "haha",
+				"success" : function(data){
+					for(var i = 0 ; i < data.photos.photo.length ; i++){
+						var dictionary = data.photos.photo[i];
+						//模板修正
+						if(dictionary.type == "3"){
+							dictionary.tutu = "http://files.haohaowan.com/yxxj/sp_" + dictionary.url +".jpg"
+						}else if(dictionary.type == "1"){
+							dictionary.tutu = "http://files.haohaowan.com/yxxj/li_" + dictionary.url;
+						}else if(dictionary.type == "2"){
+							dictionary.tutu = "http://files.haohaowan.com/yxxj/yy_r3.jpg";
+						}
+						var domstr = compild(dictionary);
+						//上树
+						var $dom = $(domstr);
+						$dom.css({
+							"position" : "absolute",
+							"top" : colheight[i % 4],
+							"left" : i % 4 * 260
+						}).appendTo(".waterfall");
+						//把自己的图片链接写到自己身上
+						$dom.attr("data-pic",dictionary.url);
+						//把自己的高度加入
+						colheight[i % 4] += parseInt(dictionary.height) + 60;
+
+						lock = true;
+
+						//上一个，绑一个。绑定监听
+						$dom.click(function(){
+							$(".mask").show();
+							$("#datutu").attr("src","http://files.haohaowan.com/yxxj/or_" + $(this).attr("data-pic"));
+						});
+					};
+				}
+			});
+		}
+
+		var lock = true;
+		getJSON(1)
+
+		$(window).scroll(function(){
+			if(!lock) return;
+			//计算比例
+			var A = $(this).scrollTop();
+			var B = $(this).height();
+			var C = $(document).height();
+			var rate = (A + B ) / C;
+			//比例大于0.7的时候加载更多
+			if(rate > 0.7){
+				page++;
+				 getJSON(page);
+				 lock = false;
+			}
+		})
+
+
+		$(".bigpic span").click(function(){
+			$(".mask").hide();
+		})
+	</script>
+</body>
+</html>

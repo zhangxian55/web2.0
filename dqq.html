@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>打气球游戏</title>
+	<style type="text/css">
+         *{
+         	margin: 0;
+         	padding: 0;
+         }
+         body{
+          height: 500px;
+         	background-image: -webkit-linear-gradient(top,skyblue,white);
+         }
+         p{
+         	height:120px;
+         	width:96px;
+         	background: url(images/ballon.png) ;
+        	position: absolute;
+         	
+         }
+         h1{
+         	text-align: center;
+         	font-size: 40px;
+         }
+           h2{
+         	font-size: 20px;
+         }
+          h3{
+         	text-align: center;
+         	font-size: 30px;
+         }
+         span{
+            position: absolute;
+            bottom: 30px;
+            right: 100px;
+            height: 40px;
+            width: 100px;
+            background:#ccc;
+            color: red;
+            border-radius: 5px;
+            text-align: center;
+            line-height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+      }
+      span a{
+            display: block;
+            height: 40px;
+            width: 100px;
+            font-weight: bold;
+            text-decoration: none;
+      }
+
+	</style>
+</head>
+<body>
+  <span><a href="javascript:location.reload()" target="_self">重新开始</a></span>
+	<h1>分数:0</h1>
+	<h2></h2>
+	<h3></h3>
+	<script type="text/javascript">
+	var h1=document.getElementsByTagName("h1")[0];
+	var h2=document.getElementsByTagName("h2")[0];
+	var h3=document.getElementsByTagName("h3")[0];
+       function ballon(){
+       	 this.left=Math.random()*(document.documentElement.clientWidth-96);
+       	 this.bottom=0;
+       	 
+       	 this.fenshu=parseInt(Math.random()*8)+1;
+       	 this.bgx=(this.fenshu-1)%4*-96;
+       	 this.bgy=this.fenshu>4?-120:0;
+       	 this.init();
+       	 ballonarr.push(this);
+       }	
+			//构造函数，气球类。
+		
+       ballon.prototype.init=function(){
+       	 this.dom=document.createElement("p");
+       	 document.body.appendChild(this.dom);
+       	 this.dom.style.left=this.left+"px";
+       	 this.dom.style.bottom=this.bottom+"px";
+       	 this.dom.style.backgroundPosition= this.bgx+"px "+ this.bgy+"px";
+       	 var self=this;
+       	 this.dom.onclick=function(){
+       	 	self.godie();
+       	 	fenshu+=self.fenshu;
+       	 	// h1.innerHTML="分数："+fenshu;
+       	  }
+       }
+	
+       var frame=0;
+       var ballonarr=[];
+       var fenshu=0;
+       ballon.prototype.update=function(){
+          this.bottom+=this.fenshu;
+          this.dom.style.bottom=this.bottom+"px";
+          if(this.bottom>document.documentElement.clientHeight){
+              this.godie();
+          }
+       }
+         ballon.prototype.godie=function(){
+         	for(var i=ballonarr.length-1;i>=0;i--){
+         		if(ballonarr[i]==this){
+                   ballonarr.splice(i,1)
+         		}
+         	}
+         	document.body.removeChild(this.dom);
+         }
+         //更新方法
+		
+
+       this.timer=setInterval(function(){
+        	
+        	if(frame%20==0){
+        		new ballon();
+        	}
+        	frame++;
+               h2.innerHTML="帧数："+frame+ " FPS:50";
+        	for(var i=0;i<ballonarr.length;i++){
+        		ballonarr[i].update();
+        		h1.innerHTML="分数："+fenshu;
+        	    }
+        	    // 分数定时器
+        	var time=30;
+        	time-=parseInt(frame/50);
+        	h3.innerHTML="倒计时:"+time;
+        	if(time==0){
+        	clearInterval(this.timer);
+        	alert("Gameover")
+        	}
+        },20) 
+              
+      
+       
+	</script>
+</body>
+</html>
